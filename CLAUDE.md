@@ -32,4 +32,31 @@ Le SaaS s'écrit d'abord en entier, l'historique est reconstruit ensuite. Jamais
 
 ## État du dépôt
 
-Vide. Aucun commit, aucun fichier hors ce CLAUDE.md, aucun tag. Documenter ici les commandes de build, de lint et de test dès leur mise en place, en incluant l'invocation d'un test unique et la matrice CI trois SGBD.
+Squelette `laravel/laravel` amorcé. Aucun tag. Le plancher PHP de la racine est remonté à `^8.4`, au-dessus du `^8.3` exigé par le framework, parce que Pest 5 impose `php: ^8.4` et `phpunit/phpunit: ^13.3`. Le squelette livre Pest 4 et PHPUnit 12 par défaut, les deux contraintes ont donc été relevées à la main.
+
+Versions installées :
+
+| Paquet | Version |
+|---|---|
+| laravel/framework | 13.25.0 |
+| pestphp/pest | 5.1.1 |
+| phpunit/phpunit | 13.3.0 |
+| laravel/pint | 1.30.5 |
+
+Ni Octane, ni FrankenPHP, ni Filament, ni Livewire à ce stade. Décision de cadrage 3 : le runtime reste classique jusqu'au Module 7.
+
+## Commandes
+
+```bash
+composer install                      # dépendances
+php artisan serve                     # serveur de développement, mode classique
+
+./vendor/bin/pest                     # suite complète
+./vendor/bin/pest tests/Unit/ClockTest.php          # un fichier
+./vendor/bin/pest --filter="résout SystemClock"     # un test unique
+
+./vendor/bin/pint --test              # lint, sans écrire
+./vendor/bin/pint                     # formatage
+```
+
+Reste à poser : PHPStan niveau 9 et sa commande, matrice CI trois SGBD (MySQL, MariaDB, PostgreSQL), script de vérification des marqueurs `// file: ... @module-XX` contre le manuscrit.
