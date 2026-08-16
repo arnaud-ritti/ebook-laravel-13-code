@@ -1,8 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Contracts\Clock;
 use App\Support\FrozenClock;
 use App\Support\SystemClock;
+use Illuminate\Testing\PendingCommand;
+
+use function Pest\Laravel\artisan;
 
 it('résout SystemClock pour le contrat Clock', function () {
     expect(app(Clock::class))->toBeInstanceOf(SystemClock::class);
@@ -17,7 +22,11 @@ it('injecte FrozenClock dans la commande quand le conteneur est réécrit', func
 
     app()->instance(Clock::class, new FrozenClock($instant));
 
-    $this->artisan('show-clock')
+    $command = artisan('show-clock');
+
+    assert($command instanceof PendingCommand);
+
+    $command
         ->expectsOutputToContain('2026-08-16T09:30:00+00:00')
         ->expectsOutputToContain(FrozenClock::class)
         ->assertSuccessful();
