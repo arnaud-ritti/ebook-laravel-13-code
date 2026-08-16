@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/app
+    environment:
+      DB_CONNECTION: ${DB_CONNECTION:-pgsql}
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      pgsql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: solvia
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 5s
+      retries: 20
+
+  mariadb:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: laravel
+      MARIADB_ROOT_PASSWORD: solvia
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 20
+
+  pgsql:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: laravel
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: solvia
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 5s
+      retries: 20
