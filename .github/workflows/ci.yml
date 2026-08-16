@@ -11,6 +11,8 @@ jobs:
         engine: [pgsql, mysql, mariadb, sqlite]
     steps:
       - uses: actions/checkout@v4
+      - name: Préparer le fichier d'environnement
+        run: test -f .env || cp .env.example .env
       - name: Démarrer la pile
         run: docker compose up -d --build
       - name: Générer la clé d'application
