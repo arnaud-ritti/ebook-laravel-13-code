@@ -21,7 +21,7 @@ services:
   mysql:
     image: mysql:8.4
     environment:
-      MYSQL_DATABASE: laravel
+      MYSQL_DATABASE: solvia
       MYSQL_ROOT_PASSWORD: solvia
     healthcheck:
       test: ["CMD", "mysqladmin", "ping"]
@@ -31,7 +31,7 @@ services:
   mariadb:
     image: mariadb:11.4
     environment:
-      MARIADB_DATABASE: laravel
+      MARIADB_DATABASE: solvia
       MARIADB_ROOT_PASSWORD: solvia
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
@@ -41,7 +41,7 @@ services:
   pgsql:
     image: postgres:17
     environment:
-      POSTGRES_DB: laravel
+      POSTGRES_DB: solvia
       POSTGRES_USER: root
       POSTGRES_PASSWORD: solvia
     healthcheck:
