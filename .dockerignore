@@ -1,0 +1,15 @@
+.git
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+/.idea
+/.vscode
+/node_modules
+/public/build
+/public/hot
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml

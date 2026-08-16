@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Contracts\Clock;
 use App\Support\SystemClock;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\TelescopeServiceProvider as PackageTelescopeServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,6 +17,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Clock::class, SystemClock::class);
+
+        if (! $this->app->environment('production') && class_exists(PackageTelescopeServiceProvider::class)) {
+            $this->app->register(PackageTelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 
     /**
