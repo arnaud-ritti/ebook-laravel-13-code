@@ -1,0 +1,17 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [pgsql, mysql, mariadb, sqlite]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Démarrer la pile
+        run: docker compose up -d --build
+      - name: Qualité et tests
+        run: docker compose exec -T -e DB_CONNECTION=${{ matrix.engine }} app composer check
