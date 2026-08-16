@@ -13,5 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Démarrer la pile
         run: docker compose up -d --build
+      - name: Générer la clé d'application
+        run: docker compose exec -T app php artisan key:generate
       - name: Qualité et tests
         run: docker compose exec -T -e DB_CONNECTION=${{ matrix.engine }} app composer check
