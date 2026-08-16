@@ -7,6 +7,7 @@ services:
       - "8000:80"
     volumes:
       - .:/app
+      - /app/vendor
     environment:
       DB_CONNECTION: ${DB_CONNECTION:-pgsql}
       XDEBUG_MODE: ${XDEBUG_MODE:-off}

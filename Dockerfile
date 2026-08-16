@@ -25,6 +25,8 @@ RUN install-php-extensions xdebug
 COPY docker/php.ini /usr/local/etc/php/conf.d/99-app.ini
 COPY docker/xdebug.ini /usr/local/etc/php/conf.d/99-xdebug.ini
 
-COPY --from=vendor /app/vendor /app/vendor
+COPY composer.json composer.lock ./
+RUN composer install --no-scripts --no-autoloader --prefer-dist
+
 COPY . .
 RUN composer dump-autoload
