@@ -29,6 +29,6 @@ it('documente le silence de lockForUpdate sous SQLite', function () {
     $sql = DB::table('users')->lockForUpdate()->toSql();
 
     config('database.default') === 'sqlite'
-        ? expect($sql)->not->toContain('for update')
+        ? expect(strtolower($sql))->not->toContain('for update')
         : expect(strtolower($sql))->toContain('for update');
 });
