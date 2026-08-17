@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class InvoiceLineFactory extends Factory
 {
+    /** @var array<string, int> */
+    private static array $positions = [];
+
     /**
      * @return array<string, mixed>
      */
@@ -26,7 +29,7 @@ class InvoiceLineFactory extends Factory
         return [
             'invoice_id' => Invoice::factory(),
             'product_id' => null,
-            'position' => 1,
+            'position' => 0,
             'label' => fake()->words(3, true),
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
@@ -35,5 +38,23 @@ class InvoiceLineFactory extends Factory
             'tax_amount' => round($excl * $rate, 4),
             'amount_incl_tax' => round($excl * (1 + $rate), 4),
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterMaking(function (InvoiceLine $line): void {
+            if ($line->position !== 0) {
+                return;
+            }
+
+            /** @var string $invoiceId */
+            $invoiceId = $line->getAttribute('invoice_id');
+
+            $position = max(1, (self::$positions[$invoiceId] ?? 0) + 1);
+
+            self::$positions[$invoiceId] = $position;
+
+            $line->position = $position;
+        });
     }
 }
