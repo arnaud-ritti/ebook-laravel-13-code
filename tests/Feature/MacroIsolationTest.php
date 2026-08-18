@@ -35,3 +35,44 @@ it('retrouve la macro apres un nouvel enregistrement', function () {
     expect($sql)->toContain('>= ?')
         ->and($sql)->toContain('< ?');
 });
+
+it('sert a une seconde requete du meme processus la valeur qu une fermeture de macro a capturee par use a la premiere, substitut au niveau processus du cas worker differe au module 7', function () {
+    // Ce depot tourne en mode classique jusqu au Module 7, un processus par requete : ce test
+    // ne fait tourner aucun worker Octane et n en simule pas l ordonnancement. Il rejoue au
+    // niveau du processus PHP le mecanisme etabli par lecture de source au point 13 du journal,
+    // $macros est une propriete statique de classe qu aucun mecanisme du framework ne vide, en
+    // appelant deux fois de suite une macro dont la fermeture capture par use une valeur qui,
+    // dans une application reelle, serait resolue depuis la requete, un tenant courant ou un
+    // utilisateur authentifie.
+
+    $tenantDeLaRequete = 'tenant-premiere-requete';
+
+    QueryBuilder::macro('tenantCapturePourLeTest', function () use ($tenantDeLaRequete): string {
+        return $tenantDeLaRequete;
+    });
+
+    /**
+     * @var string $reponseAvantMutation
+     *
+     * @phpstan-ignore method.notFound (macro enregistree dans le corps de ce test, jamais vue par le boot que larastan rejoue avant l analyse)
+     */
+    $reponseAvantMutation = DB::query()->tenantCapturePourLeTest();
+
+    expect($reponseAvantMutation)->toBe('tenant-premiere-requete');
+
+    // La source mute, comme elle le ferait entre deux requetes servies par le meme worker
+    // resident : le boot() qui a enregistre la macro ne se rejoue pas forcement a chacune.
+    $tenantDeLaRequete = 'tenant-seconde-requete';
+
+    /**
+     * @var string $reponseApresMutation
+     *
+     * @phpstan-ignore method.notFound (macro enregistree dans le corps de ce test, jamais vue par le boot que larastan rejoue avant l analyse)
+     */
+    $reponseApresMutation = DB::query()->tenantCapturePourLeTest();
+
+    expect($reponseApresMutation)->toBe('tenant-premiere-requete')
+        ->and($reponseApresMutation)->not->toBe($tenantDeLaRequete);
+
+    QueryBuilder::flushMacros();
+});
