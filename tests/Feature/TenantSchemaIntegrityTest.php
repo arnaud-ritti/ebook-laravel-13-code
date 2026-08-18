@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Schema;
 
-it('porte l unicité du numéro de facture par tenant', function () {
+it("porte l'unicité du numéro de facture par tenant", function () {
     $unique = collect(Schema::getIndexes('invoices'))
         ->first(fn (array $index): bool => $index['unique'] && in_array('number', $index['columns'], true));
 

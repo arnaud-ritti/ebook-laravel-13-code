@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class InvoiceLineFactory extends Factory
 {
-    /** @var array<string, int> */
+    /** @var array<string, int<1, max>> */
     private static array $positions = [];
 
     /**
@@ -50,7 +50,7 @@ class InvoiceLineFactory extends Factory
             /** @var string $invoiceId */
             $invoiceId = $line->getAttribute('invoice_id');
 
-            $position = max(1, (self::$positions[$invoiceId] ?? 0) + 1);
+            $position = (self::$positions[$invoiceId] ?? 0) + 1;
 
             self::$positions[$invoiceId] = $position;
 

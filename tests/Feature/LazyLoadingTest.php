@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\LazyLoadingViolationException;
 use Illuminate\Support\Facades\DB;
 
+afterEach(function (): void {
+    Model::preventLazyLoading(! app()->isProduction());
+});
+
 it('compte une requête par facture sans chargement anticipé', function () {
     Model::preventLazyLoading(false);
 

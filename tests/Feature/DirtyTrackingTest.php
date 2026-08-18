@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 
-it('n émet que les colonnes modifiées dans un update', function () {
+it("n'émet que les colonnes modifiées dans un update", function () {
     $customer = Customer::factory()->create();
 
     $statements = [];

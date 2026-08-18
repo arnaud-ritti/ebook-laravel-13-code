@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
+use App\Models\InvoiceNumber;
 use App\Models\Product;
 use App\Models\Tenant;
 use App\Models\User;
@@ -32,13 +33,27 @@ class DatabaseSeeder extends Seeder
         $tenantOne->users()->attach($shared, ['role' => 'member', 'joined_at' => now()]);
         $tenantTwo->users()->attach($shared, ['role' => 'member', 'joined_at' => now()]);
 
+        $series = now()->format('Y');
+
         foreach ([$tenantOne, $tenantTwo] as $tenant) {
             $customers = Customer::factory(5)->create(['tenant_id' => $tenant->id]);
             $products = Product::factory(8)->create(['tenant_id' => $tenant->id]);
 
+            $nextValue = 1;
+
             for ($index = 1; $index <= 10; $index++) {
-                $this->createInvoice($tenant, $customers, $products, $index <= 5);
+                $number = $index <= 5
+                    ? sprintf('F-%s-%04d', $series, $nextValue++)
+                    : null;
+
+                $this->createInvoice($tenant, $customers, $products, $number);
             }
+
+            InvoiceNumber::create([
+                'tenant_id' => $tenant->id,
+                'series' => $series,
+                'next_value' => $nextValue,
+            ]);
         }
     }
 
@@ -46,7 +61,7 @@ class DatabaseSeeder extends Seeder
      * @param  Collection<int, Customer>  $customers
      * @param  Collection<int, Product>  $products
      */
-    private function createInvoice(Tenant $tenant, Collection $customers, Collection $products, bool $issued): Invoice
+    private function createInvoice(Tenant $tenant, Collection $customers, Collection $products, ?string $number): Invoice
     {
         $invoice = Invoice::factory()->create([
             'tenant_id' => $tenant->id,
@@ -73,9 +88,9 @@ class DatabaseSeeder extends Seeder
             'amount_excl_tax' => $exclTotal,
             'tax_amount' => $taxTotal,
             'amount_incl_tax' => round($exclTotal + $taxTotal, 4),
-            'status' => $issued ? 'issued' : 'draft',
-            'number' => $issued ? 'F-'.fake()->unique()->numberBetween(1000, 99999) : null,
-            'issued_at' => $issued ? now() : null,
+            'status' => $number === null ? 'draft' : 'issued',
+            'number' => $number,
+            'issued_at' => $number === null ? null : now(),
         ]);
 
         return $invoice;

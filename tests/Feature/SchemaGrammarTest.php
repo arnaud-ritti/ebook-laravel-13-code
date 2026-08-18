@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Schema;
 
-it('conserve la précision et l échelle d une colonne decimale, sauf sous sqlite qui les perd', function () {
+it("conserve la précision et l'échelle d'une colonne décimale, sauf sous sqlite qui les perd", function () {
     $columns = collect(Schema::getColumns('invoices'))->keyBy('name');
 
     $type = $columns['amount_excl_tax']['type'];
