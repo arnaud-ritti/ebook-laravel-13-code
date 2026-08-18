@@ -51,28 +51,32 @@ it('sert a une seconde requete du meme processus la valeur qu une fermeture de m
         return $tenantDeLaRequete;
     });
 
-    /**
-     * @var string $reponseAvantMutation
-     *
-     * @phpstan-ignore method.notFound (macro enregistree dans le corps de ce test, jamais vue par le boot que larastan rejoue avant l analyse)
-     */
-    $reponseAvantMutation = DB::query()->tenantCapturePourLeTest();
+    try {
+        /**
+         * @var string $reponseAvantMutation
+         *
+         * @phpstan-ignore method.notFound (macro enregistree dans le corps de ce test, jamais vue par le boot que larastan rejoue avant l analyse)
+         */
+        $reponseAvantMutation = DB::query()->tenantCapturePourLeTest();
 
-    expect($reponseAvantMutation)->toBe('tenant-premiere-requete');
+        expect($reponseAvantMutation)->toBe('tenant-premiere-requete');
 
-    // La source mute, comme elle le ferait entre deux requetes servies par le meme worker
-    // resident : le boot() qui a enregistre la macro ne se rejoue pas forcement a chacune.
-    $tenantDeLaRequete = 'tenant-seconde-requete';
+        // La source mute, comme elle le ferait entre deux requetes servies par le meme worker
+        // resident : le boot() qui a enregistre la macro ne se rejoue pas forcement a chacune.
+        $tenantDeLaRequete = 'tenant-seconde-requete';
 
-    /**
-     * @var string $reponseApresMutation
-     *
-     * @phpstan-ignore method.notFound (macro enregistree dans le corps de ce test, jamais vue par le boot que larastan rejoue avant l analyse)
-     */
-    $reponseApresMutation = DB::query()->tenantCapturePourLeTest();
+        /**
+         * @var string $reponseApresMutation
+         *
+         * @phpstan-ignore method.notFound (macro enregistree dans le corps de ce test, jamais vue par le boot que larastan rejoue avant l analyse)
+         */
+        $reponseApresMutation = DB::query()->tenantCapturePourLeTest();
 
-    expect($reponseApresMutation)->toBe('tenant-premiere-requete')
-        ->and($reponseApresMutation)->not->toBe($tenantDeLaRequete);
-
-    QueryBuilder::flushMacros();
+        expect($reponseApresMutation)->toBe('tenant-premiere-requete')
+            ->and($reponseApresMutation)->not->toBe($tenantDeLaRequete);
+    } finally {
+        // La table est statique : sans ce finally, une assertion qui tombe laisserait la
+        // macro enregistree pour tous les tests suivants du meme processus PHP.
+        QueryBuilder::flushMacros();
+    }
 });
